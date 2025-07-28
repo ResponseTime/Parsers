@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John",
+      "roles": [
+        "admin",
+        "editor"
+      ],
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Jane",
+      "roles": [
+        "some"
+      ],
+      "active": false
+    }
+  ],
+  "meta": {
+    "count": 2,
+    "next": null
+  }
+}

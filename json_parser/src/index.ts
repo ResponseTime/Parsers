@@ -4,17 +4,16 @@ import path from 'node:path';
 const JSON_PARSED = {};
 const STACK = new Array();
 
-function getJsonFile(path) {
+export function getJsonFile(path: string) {
   const reader = readFileSync(path, {
     encoding: 'utf-8'
   })
-  console.log(JSON.parse(reader))
   const lines = reader.split('\r\n');
   return lines
 }
-function parseValue(rawValue) {
+function parseValue(rawValue: string) {
   const finalValue = rawValue.trim().replace(/,$/, "");
-  // console.log(finalValue)
+
   switch (true) {
     case finalValue.startsWith("\"") && finalValue.endsWith("\""):
       return finalValue.substring(1, finalValue.length - 1);
@@ -32,12 +31,16 @@ function parseValue(rawValue) {
       return 'Parse Object'
     case finalValue === '[':
       return 'Parse Array'
+    case "[]":
+      return []
+    case "{}":
+      return {}
     default:
-      // console.log(finalValue)
+      console.log(finalValue)
       throw new Error("Not parseable")
   }
 }
-function parseKey(rawKey) {
+function parseKey(rawKey: string) {
   const trimmed = rawKey.trim()
   if (!trimmed.startsWith("\"") || !trimmed.endsWith("\"")) {
     throw new Error("Not parseable")
@@ -45,7 +48,7 @@ function parseKey(rawKey) {
   return trimmed.substring(1, trimmed.length - 1)
 }
 
-function parseObject(lines, i, obj) {
+function parseObject(lines: string, i: number, obj: object) {
   if (!lines[0].startsWith("{") || !lines[lines.length - 1].endsWith("}")) {
     throw new Error("Not parseable")
   }
@@ -78,7 +81,7 @@ function parseObject(lines, i, obj) {
   }
 }
 
-function parseArray(lines, i, arr) {
+function parseArray(lines: string[], i: number, arr: number[] | object[]): [number[], number] {
   if (lines[i].trim().replace(/,$/, "") == ']' || i >= lines.length) {
     return [arr, i]
   }
@@ -101,7 +104,7 @@ function parseArray(lines, i, arr) {
   }
 }
 
-const json_lines = getJsonFile(path.join('.', 'demo.json'))
+const json_lines = getJsonFile(path.join('src', 'demo.json'))
 // const simple_json = getJsonFile(path.join('.', 'simple_json.json'))
 
 

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext", // required for ESM
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "outDir": "dist"
+  },
+  "ts-node": {
+    "esm": true // <--- this is crucial
+  }
+}
