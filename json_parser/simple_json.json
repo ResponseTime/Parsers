@@ -1,0 +1,9 @@
+{
+  "string": "Hello, World!, some, text, with",
+  "number": 12345,
+  "float": 3.14159,
+  "booleanTrue": true,
+  "booleanFalse": false,
+  "nullValue": null,
+  "emptyString": ""
+}
