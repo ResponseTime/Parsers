@@ -6,8 +6,6 @@
   "booleanFalse": false,
   "nullValue": null,
   "emptyString": "",
-  "emptyArray": [],
-  "emptyObject": {},
   "arrayOfNumbers": [
     1,
     2,

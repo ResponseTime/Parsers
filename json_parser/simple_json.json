@@ -5,5 +5,16 @@
   "booleanTrue": true,
   "booleanFalse": false,
   "nullValue": null,
-  "emptyString": ""
+  "emptyString": "",
+  "info": {
+    "name": "aayush",
+    "age": 23
+  },
+  "array": [
+    1,
+    2,
+    4,
+    5,
+    10
+  ]
 }

@@ -8,13 +8,13 @@ function getJsonFile(path) {
   const reader = readFileSync(path, {
     encoding: 'utf-8'
   })
-
+  console.log(JSON.parse(reader))
   const lines = reader.split('\r\n');
   return lines
 }
 function parseValue(rawValue) {
   const finalValue = rawValue.trim().replace(/,$/, "");
-
+  // console.log(finalValue)
   switch (true) {
     case finalValue.startsWith("\"") && finalValue.endsWith("\""):
       return finalValue.substring(1, finalValue.length - 1);
@@ -28,7 +28,12 @@ function parseValue(rawValue) {
       return false
     case finalValue.length === 0:
       return ""
+    case finalValue === '{':
+      return 'Parse Object'
+    case finalValue === '[':
+      return 'Parse Array'
     default:
+      // console.log(finalValue)
       throw new Error("Not parseable")
   }
 }
@@ -44,27 +49,64 @@ function parseObject(lines, i, obj) {
   if (!lines[0].startsWith("{") || !lines[lines.length - 1].endsWith("}")) {
     throw new Error("Not parseable")
   }
-  if (lines[i] == '}' || i >= lines.length) {
-    return obj
+  if (lines[i] && lines[i].trim().replace(/,$/, "") == '}' || i >= lines.length) {
+    return [obj, i]
   }
-  if (lines[i] == '{') {
+  if (lines[i].trim() == '{') {
     return parseObject(lines, i + 1, obj)
   }
   else {
     let row = lines[i].trim().split(':')
-    if (row.length < 2) throw new Error("Not parseable")
+    if (row.length < 2) {
+      return parseObject(lines, i + 1, obj)
+    }
     const key = parseKey(row[0])
-    const value = parseValue(row[1])
+    let value = parseValue(row[1])
+    if (value == 'Parse Object') {
+      lines[i] = row[1].trim().replace(/,$/, "")
+      let [newValue, newI] = parseObject(lines, i, {})
+      value = newValue
+      i = newI
+    } else if (value == 'Parse Array') {
+      lines[i] = row[1].trim().replace(/,$/, "")
+      let [newValue, newI] = parseArray(lines, i, [])
+      value = newValue
+      i = newI
+    }
     obj[key] = value
     return parseObject(lines, i + 1, obj)
   }
 }
-const json_lines = getJsonFile(path.join('.', 'demo.json'))
-const simple_json = getJsonFile(path.join('.', 'simple_json.json'))
 
-
-let obj = parseObject(simple_json, 0, {})
-console.log(obj)
-for (const [key, value] of Object.entries(obj)) {
-  console.log(key, value, typeof value)
+function parseArray(lines, i, arr) {
+  if (lines[i].trim().replace(/,$/, "") == ']' || i >= lines.length) {
+    return [arr, i]
+  }
+  else if (lines[i] == "[") {
+    return parseArray(lines, i + 1, arr)
+  } else {
+    if (lines[i].trim() == "{") {
+      const [obj, newI] = parseObject(lines, i, {})
+      arr.push(obj)
+      i = newI
+      return parseArray(lines, i + 1, arr)
+    }
+    if (lines[i].trim() === "[") {
+      const [subArr, newI] = parseArray(lines, i + 1, []);
+      arr.push(subArr);
+      return parseArray(lines, newI + 1, arr);
+    }
+    arr.push(parseValue(lines[i]))
+    return parseArray(lines, i + 1, arr)
+  }
 }
+
+const json_lines = getJsonFile(path.join('.', 'demo.json'))
+// const simple_json = getJsonFile(path.join('.', 'simple_json.json'))
+
+
+let [obj] = parseObject(json_lines, 0, {})
+console.log(obj)
+// for (const [key, value] of Object.entries(obj)) {
+//   console.log(key, value, typeof value)
+// }
