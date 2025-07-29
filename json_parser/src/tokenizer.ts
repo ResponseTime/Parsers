@@ -1,33 +1,53 @@
 import { readFileSync } from "fs";
 import path from "path";
 
+export enum TokenType {
+  OBRACE = "OBRACE",
+  CBRACE = "CBRACE",
+  OSQUARE = "OSQUARE",
+  CSQUARE = "CSQUARE",
+  COLON = "COLON",
+  COMMA = "COMMA",
+  STRING = "STRING",
+  NUMBER = "NUMBER",
+  BOOLEAN = "BOOLEAN",
+  NULL = "NULL",
+}
+interface Token {
+  type: TokenType,
+  value: string
+}
+
 export function readFile(path: string) {
   const data = readFileSync(path, {
     encoding: 'utf-8'
   })
   return data
 }
-interface Token {
-  type: string,
-  value: string
-}
+
 const data = readFile(path.join("src", "demo.json"))
 const TOKENS: Token[] = []
 let ITER = 0;
 while (ITER < data.length) {
   const token = data[ITER]
+
+  if (/\s/.test(token)) {
+    ITER++;
+    continue;
+  }
+
   switch (token) {
     case "{":
-      TOKENS.push({ type: 'OBRACKET', value: '{' })
+      TOKENS.push({ type: TokenType.OBRACE, value: '{' })
       break
     case ":":
-      TOKENS.push({ type: 'COLON', value: ":" })
+      TOKENS.push({ type: TokenType.COLON, value: ":" })
       break
     case ",":
-      TOKENS.push({ type: 'COMMA', value: ',' })
+      TOKENS.push({ type: TokenType.COMMA, value: ',' })
       break
     case "}":
-      TOKENS.push({ type: 'CBRACKET', value: '}' })
+      TOKENS.push({ type: TokenType.CBRACE, value: '}' })
       break
     case "\"":
       let value = "";
@@ -38,14 +58,14 @@ while (ITER < data.length) {
         }
         i++
       }
-      TOKENS.push({ type: 'STRING', value })
-      ITER = i + 1
+      TOKENS.push({ type: TokenType.STRING, value })
+      ITER = i
       break
     case "[":
-      TOKENS.push({ type: "OSQBRACKET", value: "[" })
+      TOKENS.push({ type: TokenType.OSQUARE, value: "[" })
       break
     case "]":
-      TOKENS.push({ type: "CSQBRACKET", value: "]" })
+      TOKENS.push({ type: TokenType.CSQUARE, value: "]" })
       break
 
     default:
@@ -57,7 +77,7 @@ while (ITER < data.length) {
             .test(data[i])) {
             i++
           }
-          TOKENS.push({ type: "INTEGER", value: data.slice(ITER, i) })
+          TOKENS.push({ type: TokenType.NUMBER, value: data.slice(ITER, i) })
           ITER = i
           break
         case data[ITER] === 't':
@@ -69,7 +89,7 @@ while (ITER < data.length) {
             j++
           }
           if (k == match.length) {
-            TOKENS.push({ type: "BOOLEAN", value: "TRUE" })
+            TOKENS.push({ type: TokenType.BOOLEAN, value: "TRUE" })
             ITER = j
           }
           break
@@ -82,13 +102,34 @@ while (ITER < data.length) {
             y++
           }
           if (x == match2.length) {
-            TOKENS.push({ type: "BOOLEAN", value: "FALSE" })
+            TOKENS.push({ type: TokenType.BOOLEAN, value: "FALSE" })
             ITER = y
           }
+          break
+        case data.slice(ITER, ITER + 4) === 'null':
+          TOKENS.push({ type: TokenType.NULL, value: "NULL" })
+          ITER += 4
           break
       }
   }
   ITER++;
 }
 
-console.log(TOKENS)
+export const GENERATOR = {
+  from: 0,
+  to: TOKENS.length,
+
+  [Symbol.iterator]() {
+    return {
+      current: this.from,
+      last: this.to,
+      next() {
+        if (this.current < this.last) {
+          return { done: false, value: TOKENS[this.current++] }
+        } else {
+          return { done: true }
+        }
+      }
+    }
+  }
+}
