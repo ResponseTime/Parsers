@@ -133,3 +133,22 @@ export const GENERATOR = {
     }
   }
 }
+
+export function* GEN(): Generator<Token> {
+  for (let token of TOKENS as Token[]) {
+    yield token as Token
+  }
+}
+
+const G: Generator<Token> = GEN()
+export function parseObject() {
+
+}
+
+export function parseArray() {
+
+}
+
+export function parseValue() {
+
+}

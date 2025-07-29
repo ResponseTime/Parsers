@@ -31,9 +31,9 @@ function parseValue(rawValue: string) {
       return 'Parse Object'
     case finalValue === '[':
       return 'Parse Array'
-    case "[]":
+    case finalValue === "[]":
       return []
-    case "{}":
+    case finalValue === "{}":
       return {}
     default:
       console.log(finalValue)
