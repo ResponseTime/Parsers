@@ -1,20 +1,19 @@
 {
   "string": "Hello, World!, some, text, with",
-  "number": 12345,
-  "float": 3.14159,
+  "number": "hell",
+  "float": 3.14,
   "booleanTrue": true,
   "booleanFalse": false,
   "nullValue": null,
   "emptyString": "",
-  "info": {
-    "name": "aayush",
-    "age": 23
-  },
-  "array": [
-    1,
-    2,
-    4,
-    5,
-    10
-  ]
+  "level": {
+    "args": {
+      "some": [
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  }
 }

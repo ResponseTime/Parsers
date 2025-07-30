@@ -13,7 +13,6 @@ export function getJsonFile(path: string) {
 }
 function parseValue(rawValue: string) {
   const finalValue = rawValue.trim().replace(/,$/, "");
-
   switch (true) {
     case finalValue.startsWith("\"") && finalValue.endsWith("\""):
       return finalValue.substring(1, finalValue.length - 1);
@@ -48,10 +47,10 @@ function parseKey(rawKey: string) {
   return trimmed.substring(1, trimmed.length - 1)
 }
 
-function parseObject(lines: string, i: number, obj: object) {
-  if (!lines[0].startsWith("{") || !lines[lines.length - 1].endsWith("}")) {
-    throw new Error("Not parseable")
-  }
+function parseObject(lines: string[], i: number, obj: any): [object, number] {
+  // if (!lines[0].startsWith("{") || !lines[lines.length - 1].endsWith("}")) {
+  //   throw new Error("Not parseable")
+  // }
   if (lines[i] && lines[i].trim().replace(/,$/, "") == '}' || i >= lines.length) {
     return [obj, i]
   }
@@ -63,8 +62,8 @@ function parseObject(lines: string, i: number, obj: object) {
     if (row.length < 2) {
       return parseObject(lines, i + 1, obj)
     }
-    const key = parseKey(row[0])
-    let value = parseValue(row[1])
+    const key: string = parseKey(row[0])
+    let value: any = parseValue(row[1])
     if (value == 'Parse Object') {
       lines[i] = row[1].trim().replace(/,$/, "")
       let [newValue, newI] = parseObject(lines, i, {})
@@ -81,7 +80,7 @@ function parseObject(lines: string, i: number, obj: object) {
   }
 }
 
-function parseArray(lines: string[], i: number, arr: number[] | object[]): [number[], number] {
+function parseArray(lines: string[], i: number, arr: any[]): [number[], number] {
   if (lines[i].trim().replace(/,$/, "") == ']' || i >= lines.length) {
     return [arr, i]
   }
@@ -107,8 +106,13 @@ function parseArray(lines: string[], i: number, arr: number[] | object[]): [numb
 const json_lines = getJsonFile(path.join('src', 'demo.json'))
 // const simple_json = getJsonFile(path.join('.', 'simple_json.json'))
 
+let obj;
+if (json_lines[0].trim() === "{") {
+  [obj] = parseObject(json_lines, 0, {})
+} else {
+  [obj] = parseArray(json_lines, 0, [])
+}
 
-let [obj] = parseObject(json_lines, 0, {})
 console.log(obj)
 // for (const [key, value] of Object.entries(obj)) {
 //   console.log(key, value, typeof value)

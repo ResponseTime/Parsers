@@ -1,59 +1,33 @@
 {
-  "string": "Hello, World!",
-  "number": 12345,
-  "float": 3.14159,
-  "booleanTrue": true,
-  "booleanFalse": false,
-  "nullValue": null,
-  "emptyString": "",
-  "emptyArray": [],
-  "emptyObject": {},
-  "arrayOfNumbers": [
-    1,
-    2,
-    3,
-    4,
-    5
-  ],
-  "arrayOfStrings": [
-    "red",
-    "green",
-    "blue"
-  ],
-  "arrayOfObjects": [
+  "products": [
     {
-      "id": 1,
-      "name": "Item A"
+      "id": "p1001",
+      "name": "Laptop",
+      "price": 75000.5,
+      "inStock": true,
+      "tags": [
+        "electronics",
+        "computers",
+        "sale"
+      ]
     },
     {
-      "id": 2,
-      "name": "Item B"
-    }
-  ],
-  "nestedObject": {
-    "level1": {
-      "level2": {
-        "level3": {
-          "value": "deep"
-        }
-      }
-    }
-  },
-  "mixedArray": [
-    42,
-    "string",
-    true,
-    null,
-    {
-      "key": "value"
+      "id": "p1002",
+      "name": "Phone",
+      "price": 45000,
+      "inStock": false,
+      "tags": []
     },
-    [
-      1,
-      2,
-      3
-    ]
+    {
+      "id": "p1003",
+      "name": "Headphones",
+      "price": 2999.99,
+      "inStock": true,
+      "tags": [
+        "audio",
+        "wireless"
+      ]
+    }
   ],
-  "unicode": "こんにちは世界",
-  "escapedCharacters": "Line1\\nLine2\\tTabbed\\\"Quote\\\"",
-  "longString": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  "currency": "INR"
 }

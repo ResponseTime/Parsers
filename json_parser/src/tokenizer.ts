@@ -49,13 +49,11 @@ while (ITER < data.length) {
     case "}":
       TOKENS.push({ type: TokenType.CBRACE, value: '}' })
       break
-    case "\"":
+    case '"':
       let value = "";
       let i = ITER + 1
-      while (i < data.length && data[i] != "\"") {
-        if (data[i] != '') {
-          value += data[i]
-        }
+      while (i < data.length && data[i] != '"') {
+        value += data[i]
         i++
       }
       TOKENS.push({ type: TokenType.STRING, value })
@@ -70,45 +68,49 @@ while (ITER < data.length) {
 
     default:
       switch (true) {
-        case /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/
-          .test(token):
-          let i = ITER + 1;
-          while (/-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/
-            .test(data[i])) {
-            i++
+        case /-|\d/.test(data[ITER]):
+          const match1 = data.slice(ITER).match(
+            /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/
+          );
+
+          if (!match1) {
+            throw new Error(`Invalid number at index ${ITER}`);
           }
-          TOKENS.push({ type: TokenType.NUMBER, value: data.slice(ITER, i) })
-          ITER = i
+          TOKENS.push({
+            type: TokenType.NUMBER,
+            value: match1[0],
+          });
+          ITER += match1[0].length - 1;
           break
         case data[ITER] === 't':
-          let j = ITER + 1;
+          let j = ITER;
           let k = 0;
-          let match = "rue"
+          let match = "true"
           while (match[k] === data[j]) {
             k++
             j++
           }
           if (k == match.length) {
             TOKENS.push({ type: TokenType.BOOLEAN, value: "TRUE" })
-            ITER = j
+            ITER = j - 1
           }
           break
         case data[ITER] === 'f':
-          let y = ITER + 1;
+          let y = ITER;
           let x = 0;
-          let match2 = "alse"
+          let match2 = "false"
           while (match2[x] === data[y]) {
             x++
             y++
           }
           if (x == match2.length) {
             TOKENS.push({ type: TokenType.BOOLEAN, value: "FALSE" })
-            ITER = y
+            ITER = y - 1
           }
           break
         case data.slice(ITER, ITER + 4) === 'null':
           TOKENS.push({ type: TokenType.NULL, value: "NULL" })
-          ITER += 4
+          ITER += 4 - 1
           break
       }
   }
@@ -141,14 +143,104 @@ export function* GEN(): Generator<Token> {
 }
 
 const G: Generator<Token> = GEN()
-export function parseObject() {
 
+let INDEX = 0;
+// console.log(TOKENS)
+const cursor = {
+  next: () => { return TOKENS[INDEX++] },
+  peek: () => { return TOKENS[INDEX] },
+  done: () => { return INDEX >= TOKENS.length },
+  current: () => { return TOKENS[INDEX - 1] }
+}
+let OBJ = {}
+let ArrObjs: any[] = []
+function parseValue(token: Token) {
+  switch (token.type) {
+    case TokenType.OBRACE:
+      return parseObject(OBJ)
+    case TokenType.OSQUARE:
+      return parseArray(ArrObjs)
+    case TokenType.BOOLEAN:
+      if (token.value === "true") {
+        return true
+      } else {
+        return false
+      }
+    case TokenType.CBRACE:
+      cursor.next()
+      return
+    case TokenType.COLON:
+      cursor.next()
+      return
+    case TokenType.COMMA:
+      cursor.next()
+      break
+    case TokenType.CSQUARE:
+      cursor.next()
+      return
+    case TokenType.STRING:
+      return token.value
+    case TokenType.NUMBER:
+      return parseFloat(token.value)
+    case TokenType.NULL:
+      return null
+  }
 }
 
-export function parseArray() {
-
+function parseArray(arr: any[]) {
+  const token = cursor.next()
+  console.log(token)
+  if (token.type === TokenType.CSQUARE) {
+    return arr
+  }
+  const value = parseValue(token)
+  if (cursor.peek().type != TokenType.COMMA && cursor.peek().type != TokenType.CSQUARE) {
+    throw new Error("Error Parsing 3")
+  }
+  arr.push(value)
+  if (cursor.peek().type === TokenType.COMMA) {
+    cursor.next()
+    return parseArray(arr)
+  }
+  return arr
 }
 
-export function parseValue() {
+function parseObject(obj: any) {
+  const token = cursor.next()
+  // console.log(token, cursor.peek())
+  if (token.type === TokenType.CBRACE) {
+    // cursor.next()
+    return obj
+  }
+  if (token.type !== TokenType.STRING) {
+    throw new Error("Error Parsing 1")
+  }
+  const key = parseValue(token)
+  if (cursor.peek().type !== TokenType.COLON) {
+    throw new Error("Error Parsing 2")
+  }
+  cursor.next()
+  let value;
+  if (cursor.peek().type === TokenType.OBRACE) {
+    cursor.next()
+    value = parseObject({})
 
+  } else if (cursor.peek().type === TokenType.OSQUARE) {
+    cursor.next()
+    value = parseArray([])
+
+  } else {
+    value = parseValue(cursor.next())
+  }
+  obj[key] = value
+  // console.log(cursor.peek())
+  if (cursor.peek().type === TokenType.COMMA) {
+    cursor.next()
+    return parseObject(obj)
+  }
+  return obj
 }
+const token = cursor.next()
+OBJ = parseValue(token)
+console.log(OBJ)
+console.log(ArrObjs)
