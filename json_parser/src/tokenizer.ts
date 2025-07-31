@@ -25,7 +25,7 @@ export function readFile(path: string) {
   return data
 }
 
-const data = readFile(path.join("src", "simple_json.json"))
+const data = readFile(path.join("src", "demo.json"))
 const TOKENS: Token[] = []
 let ITER = 0;
 while (ITER < data.length) {
@@ -254,9 +254,11 @@ function parseValue(token: Token) {
 
 function parseObject(obj: any) {
   let token = cursor.next()
-
-  if (token.type === TokenType.CBRACE) {
+  if (token.type === TokenType.OBRACE && cursor.peek().type === TokenType.CBRACE) {
     cursor.next()
+    return obj
+  }
+  if (token.type === TokenType.CBRACE) {
     return obj
   }
   if (token.type === TokenType.OBRACE) {
@@ -280,9 +282,9 @@ function parseObject(obj: any) {
     value = parseArray([])
   } else {
     value = parseValue(cursor.peek())
+    cursor.next()
   }
   obj[key] = value
-  cursor.next()
   if (!cursor.done() && (cursor.peek().type === TokenType.COMMA || cursor.peek().type === TokenType.CBRACE)) {
     return parseObject(obj)
   }
@@ -290,9 +292,32 @@ function parseObject(obj: any) {
 }
 
 function parseArray(arr: any[]) {
-
+  let token = cursor.next()
+  if (!cursor.done() && cursor.peek().type === TokenType.CSQUARE) {
+    cursor.next()
+    return arr
+  }
+  if (token.type === TokenType.CSQUARE) {
+    return arr
+  }
+  if (token.type === TokenType.COMMA) {
+    token = cursor.next()
+  }
+  if (token.type === TokenType.OSQUARE) {
+    token = cursor.next()
+  }
+  let value;
+  if (token.type === TokenType.OBRACE) {
+    value = parseObject({})
+  } else {
+    value = parseValue(token)
+  }
+  arr.push(value)
+  if (!cursor.done() && (cursor.peek().type === TokenType.COMMA || cursor.peek().type === TokenType.CSQUARE)) {
+    return parseArray(arr)
+  }
+  return arr
 }
 const token = cursor.next()
 OBJ = parseValue(token)
-console.log(OBJ)
-console.log(ArrObjs)
+console.log(JSON.stringify(OBJ))

@@ -1,39 +1,87 @@
-{
-  "products": [
-    {
-      "id": "p1001",
-      "name": "Laptop",
-      "price": 75000.5,
-      "inStock": true,
-      "tags": [
-        "electronics",
-        "computers",
-        "sale"
-      ],
-      "some": [
-        1,
-        2,
-        3,
-        4
-      ]
-    },
-    {
-      "id": "p1002",
-      "name": "Phone",
-      "price": 45000,
-      "inStock": false,
-      "tags": []
-    },
-    {
-      "id": "p1003",
-      "name": "Headphones",
-      "price": 2999.99,
-      "inStock": true,
-      "tags": [
-        "audio",
-        "wireless"
-      ]
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "email": "alice@example.com",
+    "isActive": true,
+    "roles": [
+      "admin",
+      "editor"
+    ],
+    "profile": {
+      "age": 30,
+      "country": "India",
+      "social": {
+        "twitter": "@alice",
+        "github": "aliceDev"
+      }
     }
-  ],
-  "currency": "INR"
-}
+  },
+  {
+    "id": 2,
+    "name": "Bob",
+    "email": "bob@example.com",
+    "isActive": false,
+    "roles": [
+      "viewer"
+    ],
+    "profile": {
+      "age": 25,
+      "country": "USA",
+      "social": {
+        "twitter": "@bob",
+        "github": null
+      }
+    }
+  },
+  {
+    "id": 3,
+    "name": "Charlie",
+    "email": "charlie@example.com",
+    "isActive": true,
+    "roles": [],
+    "profile": {
+      "age": 28,
+      "country": "UK",
+      "social": {
+        "twitter": "",
+        "github": "charlie88"
+      }
+    }
+  },
+  {
+    "id": 4,
+    "name": "Diana",
+    "email": "diana@example.com",
+    "isActive": true,
+    "roles": [
+      "admin"
+    ],
+    "profile": {
+      "age": 32,
+      "country": "Canada",
+      "social": {
+        "twitter": "@dianaDev",
+        "github": "dianaGH"
+      }
+    }
+  },
+  {
+    "id": 5,
+    "name": "Ethan",
+    "email": "ethan@example.com",
+    "isActive": false,
+    "roles": [
+      "editor",
+      "viewer"
+    ],
+    "profile": {
+      "age": 27,
+      "country": "Australia",
+      "social": {
+        "twitter": null,
+        "github": "ethanCode"
+      }
+    }
+  }
+]
