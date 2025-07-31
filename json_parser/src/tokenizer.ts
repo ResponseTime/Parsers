@@ -25,7 +25,7 @@ export function readFile(path: string) {
   return data
 }
 
-const data = readFile(path.join("src", "demo.json"))
+const data = readFile(path.join("src", "simple_json.json"))
 const TOKENS: Token[] = []
 let ITER = 0;
 while (ITER < data.length) {
@@ -161,22 +161,22 @@ function parseValue(token: Token) {
     case TokenType.OSQUARE:
       return parseArray(ArrObjs)
     case TokenType.BOOLEAN:
-      if (token.value === "true") {
+      if (token.value === "TRUE") {
         return true
       } else {
         return false
       }
     case TokenType.CBRACE:
-      cursor.next()
+
       return
     case TokenType.COLON:
-      cursor.next()
+
       return
     case TokenType.COMMA:
-      cursor.next()
-      break
+
+      return
     case TokenType.CSQUARE:
-      cursor.next()
+
       return
     case TokenType.STRING:
       return token.value
@@ -187,58 +187,110 @@ function parseValue(token: Token) {
   }
 }
 
-function parseArray(arr: any[]) {
-  const token = cursor.next()
-  console.log(token)
-  if (token.type === TokenType.CSQUARE) {
-    return arr
-  }
-  const value = parseValue(token)
-  if (cursor.peek().type != TokenType.COMMA && cursor.peek().type != TokenType.CSQUARE) {
-    throw new Error("Error Parsing 3")
-  }
-  arr.push(value)
-  if (cursor.peek().type === TokenType.COMMA) {
-    cursor.next()
-    return parseArray(arr)
-  }
-  return arr
-}
+// function parseArray(arr: any[]) {
+//   const token = cursor.next()
+//   if (token.type === TokenType.CSQUARE) {
+//     cursor.next()
+//     return arr
+//   }
+//   let value;
+//   if (cursor.peek().type === TokenType.OBRACE) {
+//     cursor.next()
+//     value = parseObject({})
+//     // cursor.next()
+//   } else if (cursor.peek().type === TokenType.OSQUARE) {
+//     cursor.next()
+//     value = parseArray([])
+//     // cursor.next()
+//   } else {
+//     value = parseValue(token)
+//   }
+
+//   arr.push(value)
+//   if (cursor.peek().type === TokenType.COMMA) {
+//     cursor.next()
+//     return parseArray(arr)
+//   }
+//   return arr
+// }
+
+// function parseObject(obj: any) {
+//   const token = cursor.next()
+//   console.log(token, cursor.peek())
+//   if (token.type === TokenType.CBRACE) {
+//     return obj
+//   }
+//   // if (token.type !== TokenType.STRING) {
+//   //   throw new Error("Error Parsing 1")
+//   // }
+//   const key = parseValue(token)
+
+//   // if (cursor.peek().type !== TokenType.COLON) {
+//   //   throw new Error("Error Parsing 2")
+//   // }
+//   cursor.next()
+//   let value;
+//   if (cursor.peek().type === TokenType.OBRACE) {
+//     cursor.next()
+//     value = parseObject({})
+//     cursor.next()
+//   } else if (cursor.peek().type === TokenType.OSQUARE) {
+//     cursor.next()
+//     value = parseArray([])
+//     cursor.next()
+//   } else {
+//     value = parseValue(cursor.next())
+//   }
+
+//   // console.log(token, cursor.peek())
+//   obj[key] = value
+//   // console.log(cursor.peek())
+//   if (cursor.peek().type === TokenType.COMMA) {
+//     cursor.next()
+//     return parseObject(obj)
+//   }
+//   return obj
+// }
 
 function parseObject(obj: any) {
-  const token = cursor.next()
-  // console.log(token, cursor.peek())
+  let token = cursor.next()
+
   if (token.type === TokenType.CBRACE) {
-    // cursor.next()
+    cursor.next()
     return obj
   }
-  if (token.type !== TokenType.STRING) {
-    throw new Error("Error Parsing 1")
+  if (token.type === TokenType.OBRACE) {
+    token = cursor.next()
   }
-  const key = parseValue(token)
-  if (cursor.peek().type !== TokenType.COLON) {
-    throw new Error("Error Parsing 2")
+  if (token.type === TokenType.COMMA) {
+    token = cursor.next()
+  }
+  if (token.type !== TokenType.STRING) {
+    throw new Error("Not Parsing ts 1")
+  }
+  const key = parseValue(token) as string
+  if (cursor.peek().type != TokenType.COLON) {
+    throw new Error("Not Parsing ts 2")
   }
   cursor.next()
   let value;
   if (cursor.peek().type === TokenType.OBRACE) {
-    cursor.next()
     value = parseObject({})
-
   } else if (cursor.peek().type === TokenType.OSQUARE) {
-    cursor.next()
     value = parseArray([])
-
   } else {
-    value = parseValue(cursor.next())
+    value = parseValue(cursor.peek())
   }
   obj[key] = value
-  // console.log(cursor.peek())
-  if (cursor.peek().type === TokenType.COMMA) {
-    cursor.next()
+  cursor.next()
+  if (!cursor.done() && (cursor.peek().type === TokenType.COMMA || cursor.peek().type === TokenType.CBRACE)) {
     return parseObject(obj)
   }
   return obj
+}
+
+function parseArray(arr: any[]) {
+
 }
 const token = cursor.next()
 OBJ = parseValue(token)
